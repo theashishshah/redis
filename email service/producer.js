@@ -1,19 +1,25 @@
 import client from "../client.js";
 
-let jobID = 0
+let jobId = 0;
 
-setInterval(async () => {
-    // create a job to queue
+while (true) {
     const job = {
-        jobId: ++jobID,
-        task: "send email",
-        email: `user${jobID}@service.mail.com`
+        jobId: ++jobId,
+        email: `user${jobId}@service.mail.com`,
+        task: "send mail to user"
     }
 
-    const len = await client.lpush("email_service", JSON.stringify(job))
-    console.log(`Job with job ID: ${jobID} added in queue. Current len of queue: ${len}`)
-    
-    // Syntax: await client.lpush("collection_name", "value"): return len
+    const queuelen = await client.lpush("email_service", JSON.stringify(job))
 
- }, 1 * 2000)
+    if (queuelen === 1) {
+        await client.expire("email_service", 60)
+    }
 
+    console.log(`Job is added in queue: ${queuelen}`)
+
+    await new Promise((res, rej) => {
+        setTimeout(() => {
+            res()
+        }, 2 * 1000)
+    })
+}

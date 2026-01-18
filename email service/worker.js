@@ -1,15 +1,16 @@
-import client from "../client.js"
+import client from "../client.js";
 
-console.log("Queue service is started...")
+console.log("Email service has started...");
 
 while (true) {
-    const element = await client.blpop("email_service", 15)
-    console.log("element: ", element)
-    const job = JSON.parse(element[1])
-    // console.log(job)
-    console.log(`Email is sent to user on email: ${job.email}`)
+    const ele = await client.lpop("email_service")
+    const job = JSON.parse(ele)
+
+    console.log(`Email is sent to user with email ${job.email}`)
 
     await new Promise((res, rej) => {
-        setTimeout(() => {res()}, 1 * 1000)
+        setTimeout(() => {
+            res()
+        }, 2 * 1000)
     })
 }
